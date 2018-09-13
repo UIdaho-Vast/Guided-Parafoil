@@ -1,13 +1,16 @@
 #include "TinyGPS++.h"
-TinyGPSPlus gps;
+// This library is used for parsing GPS outputs. It can be found at:
+// http://arduiniana.org/libraries/tinygpsplus/
 
-// REMEMBER TO APPLLY 3.3V TO EN
+TinyGPSPlus gps; // initializing the GPS object
 
-char incomingByte = 0;   // for incoming serial data
+// REMEMBER TO APPLY 3.3V TO EN pin
+
+char incomingByte;   // for incoming serial data
 
 void setup() {
   Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
-  Serial1.begin(9600);
+  Serial1.begin(9600);   // Serial1 is the default object for the secondary serial comm port
 }
 
 void loop() {
@@ -15,16 +18,20 @@ void loop() {
   // send data only when you receive data:
   if (Serial1.available() > 0) {
     // read the incoming byte:
-    //incomingByte = Serial1.read();
-    gps.encode(Serial1.read());
+    incomingByte = Serial1.read(); //Grabs the last char transmitted to Serial1
+    gps.encode(incomingByte);      // Converts that byte to a GPS sentence
+    // These could be simplified as gps.encode(serial1.read()) but I thought this order was easier to read.
   }
 
+
+  // Basic use case statement, checks if new satellite info is available and prints it
   if (gps.satellites.isUpdated()){
     Serial.println(gps.satellites.value());
   }
 
 }
 
+// Methods of GPS objects created with the tinyGPS class:
 /*
 Serial.println(gps.location.lat(), 6); // Latitude in degrees (double)
 Serial.println(gps.location.lng(), 6); // Longitude in degrees (double)
